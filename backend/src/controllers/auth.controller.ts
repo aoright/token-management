@@ -1,24 +1,37 @@
 import { Request, Response } from 'express';
 import { AuthService } from '../services/auth.service';
-import { z } from 'zod';
 
-// 验证schemas
-const registerSchema = z.object({
-  email: z.string().email('请输入有效的邮箱地址'),
-  password: z.string().min(6, '密码至少6位'),
-  name: z.string().optional(),
-});
+// 简单的输入验证函数
+function validateEmail(email: string): boolean {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
 
-const loginSchema = z.object({
-  email: z.string().email('请输入有效的邮箱地址'),
-  password: z.string().min(1, '请输入密码'),
-});
+function validatePassword(password: string): boolean {
+  return Boolean(password && password.length >= 6);
+}
 
 export class AuthController {
-  static async register(req: Request, res: Response) {
+  static async register(req: Request, res: Response): Promise<void> {
     try {
-      // 验证请求数据
-      const { email, password, name } = registerSchema.parse(req.body);
+      const { email, password, name } = req.body;
+
+      // 验证输入
+      if (!email || !validateEmail(email)) {
+        res.status(400).json({
+          success: false,
+          message: '请输入有效的邮箱地址',
+        });
+        return;
+      }
+
+      if (!password || !validatePassword(password)) {
+        res.status(400).json({
+          success: false,
+          message: '密码至少6位',
+        });
+        return;
+      }
 
       // 注册用户
       const result = await AuthService.register(email, password, name);
@@ -31,14 +44,6 @@ export class AuthController {
     } catch (error: any) {
       console.error('注册错误:', error);
       
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({
-          success: false,
-          message: '输入数据无效',
-          errors: error.errors,
-        });
-      }
-
       res.status(400).json({
         success: false,
         message: error.message || '注册失败',
@@ -46,10 +51,26 @@ export class AuthController {
     }
   }
 
-  static async login(req: Request, res: Response) {
+  static async login(req: Request, res: Response): Promise<void> {
     try {
-      // 验证请求数据
-      const { email, password } = loginSchema.parse(req.body);
+      const { email, password } = req.body;
+
+      // 验证输入
+      if (!email || !validateEmail(email)) {
+        res.status(400).json({
+          success: false,
+          message: '请输入有效的邮箱地址',
+        });
+        return;
+      }
+
+      if (!password) {
+        res.status(400).json({
+          success: false,
+          message: '请输入密码',
+        });
+        return;
+      }
 
       // 用户登录
       const result = await AuthService.login(email, password);
@@ -62,14 +83,6 @@ export class AuthController {
     } catch (error: any) {
       console.error('登录错误:', error);
       
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({
-          success: false,
-          message: '输入数据无效',
-          errors: error.errors,
-        });
-      }
-
       res.status(401).json({
         success: false,
         message: error.message || '登录失败',
@@ -77,15 +90,16 @@ export class AuthController {
     }
   }
 
-  static async getProfile(req: any, res: Response) {
+  static async getProfile(req: any, res: Response): Promise<void> {
     try {
       const user = await AuthService.getUserById(req.user.id);
       
       if (!user) {
-        return res.status(404).json({
+        res.status(404).json({
           success: false,
           message: '用户不存在',
         });
+        return;
       }
 
       res.json({

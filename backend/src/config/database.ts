@@ -1,4 +1,4 @@
-// 使用CloudBase HTTP API数据库适配器替代Prisma
-import db from './database-tcb-http';
+// 使用CloudBase简化数据库连接
+import db from './database-tcb-simple';
 
 export default db;

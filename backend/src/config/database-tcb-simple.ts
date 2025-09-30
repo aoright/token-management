@@ -1,4 +1,4 @@
-// CloudBase 真实数据库连接
+// CloudBase 简化数据库连接
 import * as CloudBase from '@cloudbase/node-sdk';
 
 // 初始化 CloudBase
@@ -11,20 +11,13 @@ const app = CloudBase.init({
 // 获取数据库实例
 const db = app.database();
 
-// 数据库集合
-const collections = {
-  users: db.collection('users'),
-  platforms: db.collection('platforms'),
-  usageLogs: db.collection('usage_logs'),
-};
-
 // 生成UUID
 function generateId(): string {
   return Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
 }
 
 // 数据库操作接口
-export const dbReal = {
+export const dbSimple = {
   user: {
     create: async (data: {
       email: string;
@@ -41,7 +34,7 @@ export const dbReal = {
       };
 
       try {
-        const result = await collections.users.add(user);
+        const result = await db.collection('users').add(user);
         console.log('用户创建成功:', result);
         return user;
       } catch (error) {
@@ -55,9 +48,9 @@ export const dbReal = {
         let result;
         
         if (where.id) {
-          result = await collections.users.where({ id: where.id }).get();
+          result = await db.collection('users').where({ id: where.id }).get();
         } else if (where.email) {
-          result = await collections.users.where({ email: where.email }).get();
+          result = await db.collection('users').where({ email: where.email }).get();
         } else {
           return null;
         }
@@ -75,7 +68,7 @@ export const dbReal = {
 
     findMany: async () => {
       try {
-        const result = await collections.users.get();
+        const result = await db.collection('users').get();
         return result.data || [];
       } catch (error) {
         console.error('查询用户列表失败:', error);
@@ -94,14 +87,14 @@ export const dbReal = {
           updatedAt: new Date(),
         };
 
-        const result = await collections.users
+        const result = await db.collection('users')
           .where({ id: where.id })
           .update(updateData);
 
         console.log('用户更新成功:', result);
         
         // 返回更新后的用户信息
-        return await dbReal.user.findUnique({ id: where.id });
+        return await dbSimple.user.findUnique({ id: where.id });
       } catch (error) {
         console.error('更新用户失败:', error);
         throw new Error('更新用户失败');
@@ -137,7 +130,7 @@ export const dbReal = {
       };
 
       try {
-        const result = await collections.platforms.add(platform);
+        const result = await db.collection('platforms').add(platform);
         console.log('平台创建成功:', result);
         return platform;
       } catch (error) {
@@ -151,9 +144,9 @@ export const dbReal = {
         let result;
         
         if (where?.userId) {
-          result = await collections.platforms.where({ userId: where.userId }).get();
+          result = await db.collection('platforms').where({ userId: where.userId }).get();
         } else {
-          result = await collections.platforms.get();
+          result = await db.collection('platforms').get();
         }
 
         return result.data || [];
@@ -165,7 +158,7 @@ export const dbReal = {
 
     findUnique: async (where: { id: string }) => {
       try {
-        const result = await collections.platforms
+        const result = await db.collection('platforms')
           .where({ id: where.id })
           .get();
         
@@ -187,14 +180,14 @@ export const dbReal = {
           updatedAt: new Date(),
         };
 
-        const result = await collections.platforms
+        const result = await db.collection('platforms')
           .where({ id: where.id })
           .update(updateData);
 
         console.log('平台更新成功:', result);
         
         // 返回更新后的平台信息
-        return await dbReal.platform.findUnique({ id: where.id });
+        return await dbSimple.platform.findUnique({ id: where.id });
       } catch (error) {
         console.error('更新平台失败:', error);
         throw new Error('更新平台失败');
@@ -204,13 +197,13 @@ export const dbReal = {
     delete: async (where: { id: string }) => {
       try {
         // 先获取要删除的平台信息
-        const platform = await dbReal.platform.findUnique({ id: where.id });
+        const platform = await dbSimple.platform.findUnique({ id: where.id });
         
         if (!platform) {
           return null;
         }
 
-        const result = await collections.platforms
+        const result = await db.collection('platforms')
           .where({ id: where.id })
           .remove();
 
@@ -248,7 +241,7 @@ export const dbReal = {
       };
 
       try {
-        const result = await collections.usageLogs.add(log);
+        const result = await db.collection('usage_logs').add(log);
         console.log('使用日志创建成功:', result);
         return log;
       } catch (error) {
@@ -262,7 +255,7 @@ export const dbReal = {
       createdAt?: { gte?: Date; lte?: Date };
     }) => {
       try {
-        let query = collections.usageLogs;
+        let collection = db.collection('usage_logs');
         
         // 构建查询条件
         const conditions: any = {};
@@ -286,7 +279,7 @@ export const dbReal = {
           }
         }
 
-        const result = await query
+        const result = await collection
           .where(conditions)
           .orderBy('createdAt', 'desc')
           .get();
@@ -300,4 +293,4 @@ export const dbReal = {
   },
 };
 
-export default dbReal;
+export default dbSimple;

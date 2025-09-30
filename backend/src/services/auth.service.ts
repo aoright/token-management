@@ -70,7 +70,7 @@ export class AuthService {
     const secret = process.env.JWT_SECRET || 'your-secret-key';
     const expiresIn = process.env.JWT_EXPIRES_IN || '7d';
 
-    return jwt.sign({ userId }, secret, { expiresIn });
+    return jwt.sign({ userId }, secret, { expiresIn } as jwt.SignOptions);
   }
 
   static verifyToken(token: string): { userId: string } {
