@@ -1,0 +1,20 @@
+{
+  "path": "/Users/liuyukai/Downloads/token management0.1/frontend/dist",
+  "desc": "这是一个AI Token使用监控平台的前端应用，基于React+Ant Design构建，提供多平台API监控、实时统计、成本计算和配额预警功能的用户界面",
+  "id": "e282f548f531497dbfc38228c78f67a5",
+  "data": {
+    "spaceKey": "e282f548f531497dbfc38228c78f67a5",
+    "connections": {
+      "webIDE": "https://e282f548f531497dbfc38228c78f67a5.ap-singapore.cloudstudio.club",
+      "preview": "https://e282f548f531497dbfc38228c78f67a5--{port}.ap-singapore.cloudstudio.club",
+      "api": "https://e282f548f531497dbfc38228c78f67a5--api.ap-singapore.cloudstudio.club",
+      "pty": "https://e282f548f531497dbfc38228c78f67a5--pty.ap-singapore.cloudstudio.club"
+    }
+  },
+  "config": {
+    "api": "https://e282f548f531497dbfc38228c78f67a5--api.ap-singapore.cloudstudio.club",
+    "pty": "https://e282f548f531497dbfc38228c78f67a5--pty.ap-singapore.cloudstudio.club",
+    "region": "ap-shanghai",
+    "spaceKey": "e282f548f531497dbfc38228c78f67a5"
+  }
+}

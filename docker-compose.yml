@@ -1,0 +1,80 @@
+version: '3.8'
+
+services:
+  # PostgreSQL 数据库
+  postgres:
+    image: postgres:15-alpine
+    container_name: token-monitor-db
+    environment:
+      POSTGRES_DB: token_monitor
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - token-monitor-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # 后端服务
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: token-monitor-backend
+    environment:
+      DATABASE_URL: postgresql://postgres:password@postgres:5432/token_monitor?schema=public
+      PORT: 3001
+      NODE_ENV: production
+      JWT_SECRET: your-super-secret-jwt-key-change-this-in-production
+      JWT_EXPIRES_IN: 7d
+      ENCRYPTION_KEY: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+      CORS_ORIGIN: http://localhost:3000
+    ports:
+      - "3001:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - token-monitor-network
+    restart: unless-stopped
+    volumes:
+      - ./backend/logs:/app/logs
+
+  # 前端服务
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: http://localhost:3001/api
+    container_name: token-monitor-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - token-monitor-network
+    restart: unless-stopped
+
+  # Redis (可选，用于缓存)
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: token-monitor-redis
+  #   ports:
+  #     - "6379:6379"
+  #   networks:
+  #     - token-monitor-network
+  #   restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  token-monitor-network:
+    driver: bridge

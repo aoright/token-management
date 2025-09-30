@@ -1,0 +1,60 @@
+// This is your Prisma schema file
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String     @id @default(uuid())
+  email     String     @unique
+  password  String
+  name      String?
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+  platforms Platform[]
+
+  @@map("users")
+}
+
+model Platform {
+  id              String      @id @default(uuid())
+  userId          String      @map("user_id")
+  name            String
+  provider        String // openai, anthropic, azure, gemini, etc.
+  apiKeyEncrypted String      @map("api_key_encrypted")
+  baseUrl         String?     @map("base_url")
+  pricingConfig   Json        @map("pricing_config") // {input: 0.03, output: 0.06}
+  monthlyQuota    Int?        @map("monthly_quota") // tokens
+  alertThreshold  Int         @default(80) @map("alert_threshold") // percentage
+  isActive        Boolean     @default(true) @map("is_active")
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  usageLogs       UsageLog[]
+
+  @@index([userId])
+  @@map("platforms")
+}
+
+model UsageLog {
+  id               String   @id @default(uuid())
+  platformId       String   @map("platform_id")
+  model            String
+  promptTokens     Int      @map("prompt_tokens")
+  completionTokens Int      @map("completion_tokens")
+  totalTokens      Int      @map("total_tokens")
+  estimatedCost    Decimal  @map("estimated_cost") @db.Decimal(10, 6)
+  requestId        String?  @map("request_id")
+  metadata         Json?
+  createdAt        DateTime @default(now()) @map("created_at")
+  platform         Platform @relation(fields: [platformId], references: [id], onDelete: Cascade)
+
+  @@index([platformId, createdAt])
+  @@index([createdAt])
+  @@map("usage_logs")
+}
