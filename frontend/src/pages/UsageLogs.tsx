@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Table, 
   Form, 
@@ -7,10 +7,13 @@ import {
   Button, 
   Space, 
   Typography,
-  Input
+  Input,
+  message
 } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
+import { usageService } from '../services/usage.service';
+import { platformService } from '../services/platform.service';
 
 const { Title } = Typography;
 const { RangePicker } = DatePicker;
@@ -18,40 +21,59 @@ const { Option } = Select;
 
 const UsageLogs: React.FC = () => {
   const [form] = Form.useForm();
-  
-  // 模拟使用记录数据
-  const logData = [
-    {
-      key: '1',
-      platform: 'OpenAI GPT-4',
-      model: 'gpt-4-turbo',
-      promptTokens: 128,
-      completionTokens: 356,
-      totalTokens: 484,
-      estimatedCost: 0.0242,
-      createdAt: '2024-01-15 14:30:22',
-    },
-    {
-      key: '2',
-      platform: 'Claude 3',
-      model: 'claude-3-opus',
-      promptTokens: 85,
-      completionTokens: 210,
-      totalTokens: 295,
-      estimatedCost: 0.0186,
-      createdAt: '2024-01-15 10:15:45',
-    },
-    {
-      key: '3',
-      platform: 'GPT-3.5 Turbo',
-      model: 'gpt-3.5-turbo',
-      promptTokens: 256,
-      completionTokens: 124,
-      totalTokens: 380,
-      estimatedCost: 0.0015,
-      createdAt: '2024-01-14 16:42:18',
-    },
-  ];
+  const [logs, setLogs] = useState<any[]>([]);
+  const [platforms, setPlatforms] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 10,
+    total: 0,
+  });
+
+  // 获取平台列表
+  const fetchPlatforms = async () => {
+    try {
+      const platforms = await platformService.getAll();
+      setPlatforms(platforms || []);
+    } catch (error) {
+      console.error('获取平台列表失败:', error);
+    }
+  };
+
+  // 获取使用记录
+  const fetchLogs = async (params: any = {}) => {
+    setLoading(true);
+    try {
+      const response = await usageService.getLogs({
+        page: pagination.current,
+        limit: pagination.pageSize,
+        ...params,
+      });
+      
+      const logsWithKey = (response.logs || []).map((log: any) => ({
+        ...log,
+        key: log.id,
+        platform: log.platformName,
+        createdAt: dayjs(log.createdAt).format('YYYY-MM-DD HH:mm:ss'),
+      }));
+      
+      setLogs(logsWithKey);
+      setPagination(prev => ({
+        ...prev,
+        total: response.pagination?.total || 0,
+      }));
+    } catch (error) {
+      console.error('获取使用记录失败:', error);
+      message.error('获取使用记录失败');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPlatforms();
+    fetchLogs();
+  }, []);
 
   const logColumns = [
     {
@@ -68,21 +90,25 @@ const UsageLogs: React.FC = () => {
       title: '提示词 Token',
       dataIndex: 'promptTokens',
       key: 'promptTokens',
+      render: (value: number) => value?.toLocaleString() || 0,
     },
     {
       title: '完成 Token',
       dataIndex: 'completionTokens',
       key: 'completionTokens',
+      render: (value: number) => value?.toLocaleString() || 0,
     },
     {
       title: '总 Token',
       dataIndex: 'totalTokens',
       key: 'totalTokens',
+      render: (value: number) => value?.toLocaleString() || 0,
     },
     {
       title: '预估费用 ($)',
       dataIndex: 'estimatedCost',
       key: 'estimatedCost',
+      render: (value: number) => `$${(value || 0).toFixed(4)}`,
     },
     {
       title: '时间',
@@ -92,8 +118,48 @@ const UsageLogs: React.FC = () => {
   ];
 
   const onFinish = (values: any) => {
-    console.log('Received values:', values);
-    // 在实际应用中，这里会调用 API 进行筛选
+    const params: any = {};
+    
+    if (values.dateRange) {
+      params.startDate = values.dateRange[0].format('YYYY-MM-DD');
+      params.endDate = values.dateRange[1].format('YYYY-MM-DD');
+    }
+    
+    if (values.platform) {
+      params.platformId = values.platform;
+    }
+    
+    if (values.model) {
+      params.model = values.model;
+    }
+    
+    fetchLogs(params);
+  };
+
+  const handleTableChange = (paginationInfo: any) => {
+    setPagination(prev => ({
+      ...prev,
+      current: paginationInfo.current,
+      pageSize: paginationInfo.pageSize,
+    }));
+    
+    const formValues = form.getFieldsValue();
+    const params: any = {};
+    
+    if (formValues.dateRange) {
+      params.startDate = formValues.dateRange[0].format('YYYY-MM-DD');
+      params.endDate = formValues.dateRange[1].format('YYYY-MM-DD');
+    }
+    
+    if (formValues.platform) {
+      params.platformId = formValues.platform;
+    }
+    
+    if (formValues.model) {
+      params.model = formValues.model;
+    }
+    
+    fetchLogs(params);
   };
 
   return (
@@ -117,11 +183,12 @@ const UsageLogs: React.FC = () => {
         </Form.Item>
         
         <Form.Item name="platform" label="平台">
-          <Select placeholder="请选择平台" style={{ width: 150 }}>
-            <Option value="openai">OpenAI</Option>
-            <Option value="anthropic">Anthropic</Option>
-            <Option value="azure">Azure</Option>
-            <Option value="gemini">Gemini</Option>
+          <Select placeholder="请选择平台" style={{ width: 150 }} allowClear>
+            {platforms.map(platform => (
+              <Option key={platform.id} value={platform.id}>
+                {platform.name}
+              </Option>
+            ))}
           </Select>
         </Form.Item>
         
@@ -142,13 +209,19 @@ const UsageLogs: React.FC = () => {
       </Form>
       
       <Table 
-        dataSource={logData} 
-        columns={logColumns} 
+        dataSource={logs} 
+        columns={logColumns}
+        loading={loading}
         pagination={{
-          pageSize: 10,
+          current: pagination.current,
+          pageSize: pagination.pageSize,
+          total: pagination.total,
           showSizeChanger: true,
           showQuickJumper: true,
+          showTotal: (total, range) => 
+            `第 ${range[0]}-${range[1]} 条，共 ${total} 条记录`,
         }}
+        onChange={handleTableChange}
       />
     </div>
   );

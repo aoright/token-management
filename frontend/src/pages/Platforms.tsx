@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Table, 
   Button, 
@@ -8,38 +8,41 @@ import {
   Select, 
   Switch, 
   Space, 
-  Typography 
+  Typography,
+  message,
+  Popconfirm,
+  Spin
 } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { platformService, Platform } from '../services/platform.service';
 
 const { Title } = Typography;
 const { Option } = Select;
 
 const Platforms: React.FC = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [platforms, setPlatforms] = useState<Platform[]>([]);
+  const [editingPlatform, setEditingPlatform] = useState<Platform | null>(null);
   const [form] = Form.useForm();
 
-  // 模拟平台数据
-  const platformData = [
-    {
-      key: '1',
-      name: 'OpenAI GPT-4',
-      provider: 'openai',
-      baseUrl: 'https://api.openai.com/v1',
-      isActive: true,
-      monthlyQuota: 1000000,
-      alertThreshold: 80,
-    },
-    {
-      key: '2',
-      name: 'Claude 3',
-      provider: 'anthropic',
-      baseUrl: 'https://api.anthropic.com',
-      isActive: true,
-      monthlyQuota: 500000,
-      alertThreshold: 80,
-    },
-  ];
+  useEffect(() => {
+    loadPlatforms();
+  }, []);
+
+  const loadPlatforms = async () => {
+    try {
+      setLoading(true);
+      const data = await platformService.getAll();
+      setPlatforms(data);
+    } catch (error) {
+      console.error('加载平台失败:', error);
+      message.error('加载平台数据失败');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const platformColumns = [
     {
@@ -51,11 +54,22 @@ const Platforms: React.FC = () => {
       title: '提供商',
       dataIndex: 'provider',
       key: 'provider',
+      render: (provider: string) => {
+        const providerMap: { [key: string]: string } = {
+          openai: 'OpenAI',
+          anthropic: 'Anthropic',
+          azure: 'Azure OpenAI',
+          gemini: 'Google Gemini',
+          custom: '自定义'
+        };
+        return providerMap[provider] || provider;
+      },
     },
     {
       title: '基础 URL',
       dataIndex: 'baseUrl',
       key: 'baseUrl',
+      render: (url: string) => url || '-',
     },
     {
       title: '状态',
@@ -69,6 +83,7 @@ const Platforms: React.FC = () => {
       title: '月度配额',
       dataIndex: 'monthlyQuota',
       key: 'monthlyQuota',
+      render: (quota: number) => quota ? quota.toLocaleString() : '-',
     },
     {
       title: '预警阈值',
@@ -79,37 +94,99 @@ const Platforms: React.FC = () => {
     {
       title: '操作',
       key: 'action',
-      render: (_: any, record: any) => (
+      render: (_: any, record: Platform) => (
         <Space size="middle">
           <Button icon={<EditOutlined />} onClick={() => handleEdit(record)}>
             编辑
           </Button>
-          <Button icon={<DeleteOutlined />} danger>
-            删除
-          </Button>
+          <Popconfirm
+            title="确定要删除这个平台吗？"
+            onConfirm={() => handleDelete(record.id)}
+            okText="确定"
+            cancelText="取消"
+          >
+            <Button icon={<DeleteOutlined />} danger>
+              删除
+            </Button>
+          </Popconfirm>
         </Space>
       ),
     },
   ];
 
   const handleAdd = () => {
+    setEditingPlatform(null);
     form.resetFields();
     setIsModalVisible(true);
   };
 
-  const handleEdit = (record: any) => {
-    form.setFieldsValue(record);
+  const handleEdit = (platform: Platform) => {
+    setEditingPlatform(platform);
+    form.setFieldsValue({
+      ...platform,
+      inputPrice: platform.pricingConfig?.input,
+      outputPrice: platform.pricingConfig?.output,
+    });
     setIsModalVisible(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      await platformService.delete(id);
+      message.success('删除成功');
+      loadPlatforms();
+    } catch (error) {
+      console.error('删除失败:', error);
+      message.error('删除失败');
+    }
   };
 
   const handleOk = () => {
     form.submit();
   };
 
-  const onFinish = (values: any) => {
-    console.log('Received values:', values);
-    setIsModalVisible(false);
+  const onFinish = async (values: any) => {
+    try {
+      setSubmitting(true);
+      
+      const platformData = {
+        ...values,
+        pricingConfig: {
+          input: parseFloat(values.inputPrice) || 0,
+          output: parseFloat(values.outputPrice) || 0,
+        },
+      };
+      
+      // 移除临时字段
+      delete platformData.inputPrice;
+      delete platformData.outputPrice;
+
+      if (editingPlatform) {
+        await platformService.update(editingPlatform.id, platformData);
+        message.success('更新成功');
+      } else {
+        await platformService.create(platformData);
+        message.success('创建成功');
+      }
+      
+      setIsModalVisible(false);
+      loadPlatforms();
+    } catch (error) {
+      console.error('保存失败:', error);
+      message.error('保存失败');
+    } finally {
+      setSubmitting(false);
+    }
   };
+
+  if (loading) {
+    return (
+      <div style={{ textAlign: 'center', padding: '50px' }}>
+        <Spin size="large" />
+        <div style={{ marginTop: 16 }}>加载平台数据中...</div>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -125,22 +202,38 @@ const Platforms: React.FC = () => {
       </div>
       
       <Table 
-        dataSource={platformData} 
+        dataSource={platforms.map(p => ({ ...p, key: p.id }))} 
         columns={platformColumns} 
         pagination={false}
+        locale={{
+          emptyText: (
+            <div style={{ padding: '40px', color: '#999' }}>
+              <PlusOutlined style={{ fontSize: '48px', marginBottom: '16px' }} />
+              <div>暂无平台配置</div>
+              <div style={{ fontSize: '12px', marginTop: '8px' }}>
+                点击上方"添加平台"按钮开始配置您的第一个AI平台
+              </div>
+            </div>
+          )
+        }}
       />
 
       <Modal
-        title="平台配置"
+        title={editingPlatform ? "编辑平台" : "添加平台"}
         open={isModalVisible}
         onOk={handleOk}
         onCancel={() => setIsModalVisible(false)}
+        confirmLoading={submitting}
         destroyOnClose
       >
         <Form
           form={form}
           layout="vertical"
           onFinish={onFinish}
+          initialValues={{
+            isActive: true,
+            alertThreshold: 80,
+          }}
         >
           <Form.Item
             name="name"
@@ -179,19 +272,32 @@ const Platforms: React.FC = () => {
             <Input placeholder="例如：https://api.openai.com/v1" />
           </Form.Item>
           
-          <Form.Item
-            name="pricingConfig"
-            label="定价配置"
-          >
+          <Form.Item label="定价配置 ($/1K tokens)">
             <Input.Group compact>
-              <Input 
-                style={{ width: '50%' }} 
-                placeholder="输入价格 ($/1K tokens)" 
-              />
-              <Input 
-                style={{ width: '50%' }} 
-                placeholder="输出价格 ($/1K tokens)" 
-              />
+              <Form.Item
+                name="inputPrice"
+                noStyle
+                rules={[{ required: true, message: '请输入输入价格' }]}
+              >
+                <Input 
+                  style={{ width: '50%' }} 
+                  placeholder="输入价格" 
+                  type="number"
+                  step="0.001"
+                />
+              </Form.Item>
+              <Form.Item
+                name="outputPrice"
+                noStyle
+                rules={[{ required: true, message: '请输入输出价格' }]}
+              >
+                <Input 
+                  style={{ width: '50%' }} 
+                  placeholder="输出价格" 
+                  type="number"
+                  step="0.001"
+                />
+              </Form.Item>
             </Input.Group>
           </Form.Item>
           
@@ -205,8 +311,9 @@ const Platforms: React.FC = () => {
           <Form.Item
             name="alertThreshold"
             label="预警阈值 (%)"
+            rules={[{ required: true, message: '请输入预警阈值' }]}
           >
-            <Input type="number" placeholder="例如：80" />
+            <Input type="number" placeholder="例如：80" min={1} max={100} />
           </Form.Item>
           
           <Form.Item

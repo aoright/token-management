@@ -1,0 +1,17 @@
+{
+  "name": "token-monitor-backend",
+  "version": "1.0.0",
+  "description": "Token usage monitoring platform backend",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "morgan": "^1.10.0",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2"
+  }
+}

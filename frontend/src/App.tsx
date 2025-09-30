@@ -1,12 +1,18 @@
-import React from 'react';
-import { Layout, Menu, theme } from 'antd';
-import { 
-  DashboardOutlined, 
-  ApiOutlined, 
-  FileSearchOutlined, 
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Layout, Menu, theme, Avatar, Dropdown, Space } from 'antd';
+import {
+  DashboardOutlined,
+  ApiOutlined,
+  FileSearchOutlined,
   BarChartOutlined,
-  SettingOutlined 
+  SettingOutlined,
+  UserOutlined,
+  LogoutOutlined,
 } from '@ant-design/icons';
+import { useAuthStore } from './stores/authStore';
+import ProtectedRoute from './components/ProtectedRoute';
+import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Platforms from './pages/Platforms';
 import UsageLogs from './pages/UsageLogs';
@@ -15,12 +21,36 @@ import Settings from './pages/Settings';
 
 const { Header, Sider, Content } = Layout;
 
-const App: React.FC = () => {
+// 主应用布局组件
+const AppLayout: React.FC = () => {
+  const [selectedKey, setSelectedKey] = useState('dashboard');
+  const { user, logout } = useAuthStore();
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
-  const [selectedKey, setSelectedKey] = React.useState('dashboard');
+  const handleLogout = () => {
+    logout();
+  };
+
+  const userMenu = {
+    items: [
+      {
+        key: 'profile',
+        icon: <UserOutlined />,
+        label: '个人信息',
+      },
+      {
+        type: 'divider' as const,
+      },
+      {
+        key: 'logout',
+        icon: <LogoutOutlined />,
+        label: '退出登录',
+        onClick: handleLogout,
+      },
+    ],
+  };
 
   const renderContent = () => {
     switch (selectedKey) {
@@ -51,7 +81,19 @@ const App: React.FC = () => {
           console.log(collapsed, type);
         }}
       >
-        <div className="demo-logo-vertical" />
+        <div style={{ 
+          height: 32, 
+          margin: 16, 
+          background: 'rgba(255, 255, 255, 0.2)',
+          borderRadius: 6,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: 'white',
+          fontWeight: 'bold'
+        }}>
+          Token Monitor
+        </div>
         <Menu
           theme="dark"
           mode="inline"
@@ -87,7 +129,24 @@ const App: React.FC = () => {
         />
       </Sider>
       <Layout>
-        <Header style={{ padding: 0, background: colorBgContainer }} />
+        <Header style={{ 
+          padding: '0 24px', 
+          background: colorBgContainer,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          <div />
+          <Space>
+            <span>欢迎，{user?.name || user?.email}</span>
+            <Dropdown menu={userMenu} placement="bottomRight">
+              <Avatar 
+                style={{ backgroundColor: '#1890ff', cursor: 'pointer' }} 
+                icon={<UserOutlined />} 
+              />
+            </Dropdown>
+          </Space>
+        </Header>
         <Content style={{ margin: '24px 16px 0' }}>
           <div
             style={{
@@ -104,5 +163,32 @@ const App: React.FC = () => {
     </Layout>
   );
 };
+
+function App() {
+  const { checkAuth } = useAuthStore();
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+
+  return (
+    <Router>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/dashboard" element={
+          <ProtectedRoute>
+            <AppLayout />
+          </ProtectedRoute>
+        } />
+        <Route path="*" element={
+          <ProtectedRoute>
+            <AppLayout />
+          </ProtectedRoute>
+        } />
+      </Routes>
+    </Router>
+  );
+}
 
 export default App;

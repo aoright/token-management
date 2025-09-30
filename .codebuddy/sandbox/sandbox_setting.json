@@ -1,20 +1,20 @@
 {
-  "path": "/Users/liuyukai/Downloads/token management0.1/backend",
-  "desc": "这是Token监控平台的后端API服务，基于Node.js+Express构建，提供平台管理、使用记录、数据分析等RESTful API接口，支持JWT认证和数据加密",
-  "id": "e118c6d51dfb4d9282d821f95e35e699",
+  "path": "/Users/liuyukai/Downloads/token management0.1/frontend/dist",
+  "desc": "Token管理系统前端 - 最终版本，所有页面都使用真实API数据",
+  "id": "19ea8704dc7947de951d3c2e379b9bd7",
   "data": {
-    "spaceKey": "e118c6d51dfb4d9282d821f95e35e699",
+    "spaceKey": "19ea8704dc7947de951d3c2e379b9bd7",
     "connections": {
-      "webIDE": "https://e118c6d51dfb4d9282d821f95e35e699.ap-singapore.cloudstudio.club",
-      "preview": "https://e118c6d51dfb4d9282d821f95e35e699--{port}.ap-singapore.cloudstudio.club",
-      "api": "https://e118c6d51dfb4d9282d821f95e35e699--api.ap-singapore.cloudstudio.club",
-      "pty": "https://e118c6d51dfb4d9282d821f95e35e699--pty.ap-singapore.cloudstudio.club"
+      "webIDE": "https://19ea8704dc7947de951d3c2e379b9bd7.ap-singapore.cloudstudio.club",
+      "preview": "https://19ea8704dc7947de951d3c2e379b9bd7--{port}.ap-singapore.cloudstudio.club",
+      "api": "https://19ea8704dc7947de951d3c2e379b9bd7--api.ap-singapore.cloudstudio.club",
+      "pty": "https://19ea8704dc7947de951d3c2e379b9bd7--pty.ap-singapore.cloudstudio.club"
     }
   },
   "config": {
-    "api": "https://e118c6d51dfb4d9282d821f95e35e699--api.ap-singapore.cloudstudio.club",
-    "pty": "https://e118c6d51dfb4d9282d821f95e35e699--pty.ap-singapore.cloudstudio.club",
+    "api": "https://19ea8704dc7947de951d3c2e379b9bd7--api.ap-singapore.cloudstudio.club",
+    "pty": "https://19ea8704dc7947de951d3c2e379b9bd7--pty.ap-singapore.cloudstudio.club",
     "region": "ap-shanghai",
-    "spaceKey": "e118c6d51dfb4d9282d821f95e35e699"
+    "spaceKey": "19ea8704dc7947de951d3c2e379b9bd7"
   }
 }

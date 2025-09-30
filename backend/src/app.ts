@@ -6,6 +6,8 @@ import dotenv from 'dotenv';
 import { PlatformService } from './services/platform.service';
 import { UsageService } from './services/usage.service';
 import { ProxyController } from './controllers/proxy.controller';
+import { AuthController } from './controllers/auth.controller';
+import { authMiddleware } from './middleware/auth.middleware';
 
 dotenv.config();
 
@@ -15,23 +17,33 @@ const PORT = process.env.PORT || 3001;
 // Middleware
 app.use(helmet());
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+  origin: process.env.CORS_ORIGIN || '*',
   credentials: true,
 }));
 app.use(morgan('dev'));
 app.use(express.json());
 
-// 简单的认证中间件（实际项目中应该使用 JWT）
-const authMiddleware = (req: any, res: any, next: any) => {
-  // 模拟用户认证
-  req.user = { id: 'demo-user-id' };
-  next();
-};
-
 // Health check
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'Token Monitor API Server',
+    status: 'ok', 
+    timestamp: new Date().toISOString(),
+    version: '1.0.0'
+  });
+});
+
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
+
+// Auth routes (不需要认证)
+app.post('/api/auth/register', AuthController.register);
+app.post('/api/auth/login', AuthController.login);
+app.post('/api/auth/logout', AuthController.logout);
+
+// Protected auth routes (需要认证)
+app.get('/api/auth/profile', authMiddleware, AuthController.getProfile);
 
 // Platform routes
 app.get('/api/platforms', authMiddleware, async (req: any, res) => {

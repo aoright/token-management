@@ -1,36 +1,135 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+import { User, authService } from '../services/auth.service';
 
 interface AuthState {
+  user: User | null;
+  token: string | null;
   isAuthenticated: boolean;
-  user: any;
-  login: (credentials: { email: string; password: string }) => Promise<void>;
+  isLoading: boolean;
+  
+  // Actions
+  setUser: (user: User) => void;
+  setToken: (token: string) => void;
+  login: (email: string, password: string) => Promise<boolean>;
+  register: (email: string, password: string, name?: string) => Promise<boolean>;
   logout: () => void;
+  checkAuth: () => Promise<void>;
+  clearAuth: () => void;
 }
 
-const useAuthStore = create<AuthState>((set) => ({
-  isAuthenticated: false,
-  user: null,
-  
-  login: async (credentials) => {
-    // 模拟登录过程
-    // 实际项目中这里会调用 API
-    console.log('Login with:', credentials);
-    
-    // 模拟 API 延迟
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    set({
-      isAuthenticated: true,
-      user: { id: '1', email: credentials.email, name: 'Demo User' }
-    });
-  },
-  
-  logout: () => {
-    set({
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set, get) => ({
+      user: null,
+      token: null,
       isAuthenticated: false,
-      user: null
-    });
-  },
-}));
+      isLoading: false,
 
-export default useAuthStore;
+      setUser: (user: User) => {
+        set({ user, isAuthenticated: true });
+      },
+
+      setToken: (token: string) => {
+        authService.setAuthToken(token);
+        set({ token, isAuthenticated: true });
+      },
+
+      login: async (email: string, password: string): Promise<boolean> => {
+        set({ isLoading: true });
+        try {
+          const response = await authService.login(email, password);
+          if (response.success) {
+            const { user, token } = response.data;
+            authService.setAuthToken(token);
+            set({ 
+              user, 
+              token, 
+              isAuthenticated: true, 
+              isLoading: false 
+            });
+            return true;
+          }
+          set({ isLoading: false });
+          return false;
+        } catch (error) {
+          set({ isLoading: false });
+          return false;
+        }
+      },
+
+      register: async (email: string, password: string, name?: string): Promise<boolean> => {
+        set({ isLoading: true });
+        try {
+          const response = await authService.register(email, password, name);
+          if (response.success) {
+            const { user, token } = response.data;
+            authService.setAuthToken(token);
+            set({ 
+              user, 
+              token, 
+              isAuthenticated: true, 
+              isLoading: false 
+            });
+            return true;
+          }
+          set({ isLoading: false });
+          return false;
+        } catch (error) {
+          set({ isLoading: false });
+          return false;
+        }
+      },
+
+      logout: () => {
+        authService.clearAuth();
+        set({ 
+          user: null, 
+          token: null, 
+          isAuthenticated: false 
+        });
+      },
+
+      checkAuth: async () => {
+        const token = authService.getStoredToken();
+        if (!token) {
+          get().clearAuth();
+          return;
+        }
+
+        try {
+          authService.setAuthToken(token);
+          const response = await authService.getProfile();
+          if (response.success && response.data) {
+            set({ 
+              user: response.data.user, 
+              token, 
+              isAuthenticated: true 
+            });
+          } else {
+            get().clearAuth();
+          }
+        } catch (error) {
+          get().clearAuth();
+        }
+      },
+
+      clearAuth: () => {
+        authService.clearAuth();
+        set({ 
+          user: null, 
+          token: null, 
+          isAuthenticated: false 
+        });
+      },
+    }),
+    {
+      name: 'auth-storage',
+      partialize: (state) => ({ 
+        user: state.user, 
+        token: state.token, 
+        isAuthenticated: state.isAuthenticated 
+      }),
+    }
+  )
+);
