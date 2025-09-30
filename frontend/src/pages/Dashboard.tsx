@@ -4,7 +4,9 @@ import {
   RiseOutlined, 
   FallOutlined, 
   ApiOutlined, 
-  FileTextOutlined 
+  FileTextOutlined,
+  DollarOutlined,
+  ThunderboltOutlined
 } from '@ant-design/icons';
 import { usageService, UsageStats } from '../services/usage.service';
 import { platformService, Platform } from '../services/platform.service';
@@ -81,28 +83,26 @@ const Dashboard: React.FC = () => {
     {
       title: '今日 Token 消耗',
       value: stats.today.totalTokens,
-      icon: <RiseOutlined />,
-      color: '#3f8600',
+      icon: <ThunderboltOutlined style={{ color: '#f59e0b' }} />,
+      gradient: 'linear-gradient(135deg, rgba(245, 158, 11, 0.8), rgba(251, 191, 36, 0.8))',
     },
     {
-      title: '今日费用 (¥)',
-      value: stats.today.estimatedCost,
-      precision: 2,
-      icon: <RiseOutlined />,
-      color: '#3f8600',
+      title: '今日费用',
+      value: `¥${stats.today.estimatedCost.toFixed(2)}`,
+      icon: <DollarOutlined style={{ color: '#10b981' }} />,
+      gradient: 'linear-gradient(135deg, rgba(16, 185, 129, 0.8), rgba(52, 211, 153, 0.8))',
     },
     {
       title: '总 Token 消耗',
       value: stats.total.totalTokens,
-      icon: <ApiOutlined />,
-      color: '#1890ff',
+      icon: <ApiOutlined style={{ color: '#3b82f6' }} />,
+      gradient: 'linear-gradient(135deg, rgba(59, 130, 246, 0.8), rgba(99, 102, 241, 0.8))',
     },
     {
-      title: '总费用 (¥)',
-      value: stats.total.estimatedCost,
-      precision: 2,
-      icon: <FileTextOutlined />,
-      color: '#1890ff',
+      title: '总费用',
+      value: `¥${stats.total.estimatedCost.toFixed(2)}`,
+      icon: <FileTextOutlined style={{ color: '#8b5cf6' }} />,
+      gradient: 'linear-gradient(135deg, rgba(139, 92, 246, 0.8), rgba(168, 85, 247, 0.8))',
     },
   ] : [];
 
@@ -122,12 +122,14 @@ const Dashboard: React.FC = () => {
       dataIndex: 'tokens',
       key: 'tokens',
       sorter: (a: any, b: any) => a.tokens - b.tokens,
+      render: (value: number) => value.toLocaleString(),
     },
     {
       title: '费用 (¥)',
       dataIndex: 'cost',
       key: 'cost',
       sorter: (a: any, b: any) => a.cost - b.cost,
+      render: (value: number) => `¥${value.toFixed(2)}`,
     },
     {
       title: '趋势',
@@ -138,53 +140,129 @@ const Dashboard: React.FC = () => {
 
   if (loading) {
     return (
-      <div style={{ textAlign: 'center', padding: '50px' }}>
+      <div className="liquid-glass-surface" style={{ 
+        textAlign: 'center', 
+        padding: '80px',
+        margin: '40px auto',
+        maxWidth: '300px'
+      }}>
         <Spin size="large" />
-        <div style={{ marginTop: 16 }}>加载数据中...</div>
+        <div style={{ marginTop: 20 }} className="liquid-text-primary">
+          加载数据中...
+        </div>
       </div>
     );
   }
 
   return (
     <div>
-      <Title level={2}>仪表板</Title>
-      <Row gutter={16}>
+      <div style={{ marginBottom: '32px' }}>
+        <Title level={2} className="liquid-text-primary" style={{ 
+          margin: 0, 
+          fontSize: '2.5rem',
+          fontWeight: '700',
+          textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+        }}>
+          仪表板
+        </Title>
+        <p className="liquid-text-secondary" style={{ 
+          margin: '8px 0 0 0', 
+          fontSize: '1.1rem',
+          fontWeight: '400'
+        }}>
+          实时监控您的 AI API 使用情况
+        </p>
+      </div>
+
+      <Row gutter={[24, 24]}>
         {statsCards.map((stat, index) => (
-          <Col span={6} key={index}>
-            <Card>
-              <Statistic
-                title={stat.title}
-                value={stat.value}
-                precision={stat.precision}
-                prefix={stat.icon}
-                valueStyle={{ color: stat.color }}
-              />
-            </Card>
+          <Col xs={24} sm={12} lg={6} key={index}>
+            <div className="liquid-stats-card" style={{
+              position: 'relative',
+              overflow: 'hidden'
+            }}>
+              <div style={{
+                position: 'absolute',
+                top: '16px',
+                right: '16px',
+                fontSize: '24px',
+                opacity: 0.7,
+                color: 'rgba(0, 0, 0, 0.6)'
+              }}>
+                {stat.icon}
+              </div>
+              <div className="liquid-text-primary" style={{ fontSize: '2.2rem', fontWeight: 'bold' }}>
+                {typeof stat.value === 'string' ? stat.value : stat.value.toLocaleString()}
+              </div>
+              <div className="liquid-text-secondary" style={{ fontSize: '0.9rem' }}>
+                {stat.title}
+              </div>
+            </div>
           </Col>
         ))}
       </Row>
       
-      <Row style={{ marginTop: 24 }}>
+      <Row style={{ marginTop: 32 }}>
         <Col span={24}>
           <Card 
-            title="平台使用情况"
+            className="liquid-glass-surface"
+            title={
+              <span className="liquid-text-primary" style={{ 
+                fontSize: '1.3rem', 
+                fontWeight: '600' 
+              }}>
+                平台使用情况
+              </span>
+            }
             extra={
-              <span style={{ color: '#666', fontSize: '14px' }}>
+              <span className="liquid-text-secondary" style={{ fontSize: '14px' }}>
                 {platforms.length > 0 ? `共 ${platforms.length} 个平台` : '暂无平台数据'}
               </span>
             }
+            style={{
+              border: 'none',
+              borderRadius: '20px'
+            }}
           >
             {platformData.length > 0 ? (
               <Table 
                 dataSource={platformData} 
                 columns={platformColumns} 
                 pagination={false}
+                style={{ background: 'transparent' }}
               />
             ) : (
-              <div style={{ textAlign: 'center', padding: '40px', color: '#999' }}>
-                <ApiOutlined style={{ fontSize: '48px', marginBottom: '16px' }} />
-                <div>暂无平台使用数据</div>
-                <div style={{ fontSize: '12px', marginTop: '8px' }}>
+              <div style={{ 
+                textAlign: 'center', 
+                padding: '60px 40px',
+                background: 'rgba(255, 255, 255, 0.05)',
+                borderRadius: '16px',
+                border: '1px solid rgba(255, 255, 255, 0.1)'
+              }}>
+                <div style={{
+                  width: '80px',
+                  height: '80px',
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  margin: '0 auto 24px',
+                  backdropFilter: 'blur(10px)'
+                }}>
+                  <ApiOutlined style={{ 
+                    fontSize: '36px', 
+                    color: 'rgba(255, 255, 255, 0.6)' 
+                  }} />
+                </div>
+                <div className="glass-text-primary" style={{ 
+                  fontSize: '18px', 
+                  fontWeight: '600',
+                  marginBottom: '8px'
+                }}>
+                  暂无平台使用数据
+                </div>
+                <div className="glass-text-secondary" style={{ fontSize: '14px' }}>
                   请先添加平台配置，然后开始使用API服务
                 </div>
               </div>

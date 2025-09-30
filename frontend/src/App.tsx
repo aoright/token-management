@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { Layout, Menu, theme, Avatar, Dropdown, Space } from 'antd';
+import { Layout, Menu, Avatar, Dropdown, Space } from 'antd';
 import {
   DashboardOutlined,
   ApiOutlined,
@@ -25,9 +25,6 @@ const { Header, Sider, Content } = Layout;
 const AppLayout: React.FC = () => {
   const [selectedKey, setSelectedKey] = useState('dashboard');
   const { user, logout } = useAuthStore();
-  const {
-    token: { colorBgContainer, borderRadiusLG },
-  } = theme.useToken();
 
   const handleLogout = () => {
     logout();
@@ -70,92 +67,117 @@ const AppLayout: React.FC = () => {
   };
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
+    <Layout style={{ minHeight: '100vh', background: 'transparent' }}>
       <Sider
+        className="liquid-sidebar"
+        width={280}
         breakpoint="lg"
         collapsedWidth="0"
-        onBreakpoint={(broken) => {
-          console.log(broken);
-        }}
-        onCollapse={(collapsed, type) => {
-          console.log(collapsed, type);
+        style={{
+          background: 'transparent',
+          borderRight: 'none'
         }}
       >
-        <div style={{ 
-          height: 32, 
-          margin: 16, 
-          background: 'rgba(255, 255, 255, 0.2)',
-          borderRadius: 6,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: 'white',
-          fontWeight: 'bold'
-        }}>
-          Token Monitor
+        <div className="liquid-logo">
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            gap: '8px'
+          }}>
+            <div style={{
+              width: '24px',
+              height: '24px',
+              background: 'linear-gradient(135deg, #667eea, #764ba2)',
+              borderRadius: '6px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '12px',
+              fontWeight: 'bold'
+            }}>
+              T
+            </div>
+            Token Monitor
+          </div>
         </div>
         <Menu
-          theme="dark"
           mode="inline"
           selectedKeys={[selectedKey]}
           onSelect={({ key }) => setSelectedKey(key)}
+          style={{ 
+            background: 'transparent',
+            border: 'none',
+            padding: '0 12px'
+          }}
           items={[
             {
               key: 'dashboard',
               icon: <DashboardOutlined />,
               label: '仪表板',
+              className: selectedKey === 'dashboard' ? 'liquid-menu-item active' : 'liquid-menu-item',
             },
             {
               key: 'platforms',
               icon: <ApiOutlined />,
               label: '平台管理',
+              className: selectedKey === 'platforms' ? 'liquid-menu-item active' : 'liquid-menu-item',
             },
             {
               key: 'usage',
               icon: <FileSearchOutlined />,
               label: '使用记录',
+              className: selectedKey === 'usage' ? 'liquid-menu-item active' : 'liquid-menu-item',
             },
             {
               key: 'analytics',
               icon: <BarChartOutlined />,
               label: '数据分析',
+              className: selectedKey === 'analytics' ? 'liquid-menu-item active' : 'liquid-menu-item',
             },
             {
               key: 'settings',
               icon: <SettingOutlined />,
               label: '系统设置',
+              className: selectedKey === 'settings' ? 'liquid-menu-item active' : 'liquid-menu-item',
             },
           ]}
         />
       </Sider>
-      <Layout>
-        <Header style={{ 
-          padding: '0 24px', 
-          background: colorBgContainer,
+      <Layout style={{ background: 'transparent' }}>
+        <Header className="liquid-header" style={{ 
+          padding: '0 32px', 
           display: 'flex',
           justifyContent: 'space-between',
-          alignItems: 'center'
+          alignItems: 'center',
+          height: '80px'
         }}>
           <div />
-          <Space>
-            <span>欢迎，{user?.name || user?.email}</span>
+          <Space size="large">
+            <span className="liquid-text-primary" style={{ 
+              fontSize: '16px',
+              fontWeight: '500'
+            }}>
+              欢迎回来，{user?.name || user?.email || '用户'}
+            </span>
             <Dropdown menu={userMenu} placement="bottomRight">
-              <Avatar 
-                style={{ backgroundColor: '#1890ff', cursor: 'pointer' }} 
-                icon={<UserOutlined />} 
-              />
+              <div className="liquid-glass" style={{
+                width: '48px',
+                height: '48px',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                background: 'radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.2))'
+              }}>
+                <UserOutlined style={{ fontSize: '20px', color: 'rgba(0, 0, 0, 0.7)' }} />
+              </div>
             </Dropdown>
           </Space>
         </Header>
-        <Content style={{ margin: '24px 16px 0' }}>
-          <div
-            style={{
-              padding: 24,
-              minHeight: 360,
-              background: colorBgContainer,
-              borderRadius: borderRadiusLG,
-            }}
-          >
+        <Content style={{ padding: '0', background: 'transparent' }}>
+          <div className="liquid-content">
             {renderContent()}
           </div>
         </Content>

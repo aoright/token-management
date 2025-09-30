@@ -1,20 +1,20 @@
 {
-  "path": "/Users/liuyukai/Downloads/token management/frontend/dist",
-  "desc": "Token管理系统前端 - 最终版本，所有页面都使用真实API数据",
-  "id": "19ea8704dc7947de951d3c2e379b9bd7",
+  "path": "/Users/liuyukai/Downloads/token management0.1/frontend/dist",
+  "desc": "Token管理系统 - 统一iOS 26 Liquid Glass设计，解决UI割裂问题，侧边栏、头部、内容区域都使用相同的玻璃材质，统计卡片去掉彩色渐变，采用统一的透明玻璃风格",
+  "id": "734ce0ce05ed4ab5a431eda8b5d128c6",
   "data": {
-    "spaceKey": "19ea8704dc7947de951d3c2e379b9bd7",
+    "spaceKey": "734ce0ce05ed4ab5a431eda8b5d128c6",
     "connections": {
-      "webIDE": "https://19ea8704dc7947de951d3c2e379b9bd7.ap-singapore.cloudstudio.club",
-      "preview": "https://19ea8704dc7947de951d3c2e379b9bd7--{port}.ap-singapore.cloudstudio.club",
-      "api": "https://19ea8704dc7947de951d3c2e379b9bd7--api.ap-singapore.cloudstudio.club",
-      "pty": "https://19ea8704dc7947de951d3c2e379b9bd7--pty.ap-singapore.cloudstudio.club"
+      "webIDE": "https://734ce0ce05ed4ab5a431eda8b5d128c6.ap-singapore.cloudstudio.club",
+      "preview": "",
+      "api": "https://734ce0ce05ed4ab5a431eda8b5d128c6--api.ap-singapore.cloudstudio.club",
+      "pty": "https://734ce0ce05ed4ab5a431eda8b5d128c6--pty.ap-singapore.cloudstudio.club"
     }
   },
   "config": {
-    "api": "https://19ea8704dc7947de951d3c2e379b9bd7--api.ap-singapore.cloudstudio.club",
-    "pty": "https://19ea8704dc7947de951d3c2e379b9bd7--pty.ap-singapore.cloudstudio.club",
+    "api": "https://734ce0ce05ed4ab5a431eda8b5d128c6--api.ap-singapore.cloudstudio.club",
+    "pty": "https://734ce0ce05ed4ab5a431eda8b5d128c6--pty.ap-singapore.cloudstudio.club",
     "region": "ap-shanghai",
-    "spaceKey": "19ea8704dc7947de951d3c2e379b9bd7"
+    "spaceKey": "734ce0ce05ed4ab5a431eda8b5d128c6"
   }
 }

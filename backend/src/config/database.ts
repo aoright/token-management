@@ -1,4 +1,4 @@
-// 使用CloudBase简化数据库连接
-import db from './database-tcb-simple';
+// 使用CloudBase数据库连接
+import db from './database-cloudbase';
 
 export default db;

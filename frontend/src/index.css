@@ -1,46 +1,219 @@
+@import './styles/ios26-liquid-glass.css';
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
-}
-
 #root {
   min-height: 100vh;
 }
 
-/* 滚动条样式 */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+/* Ant Design 组件覆盖样式 - 明亮透明风格 */
+.ant-layout {
+  background: transparent !important;
 }
 
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
+.ant-layout-sider {
+  background: 
+    linear-gradient(180deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.15) 100%) !important;
+  backdrop-filter: blur(40px) saturate(1.6) brightness(1.1) !important;
+  -webkit-backdrop-filter: blur(40px) saturate(1.6) brightness(1.1) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.3) !important;
+  box-shadow: 
+    8px 0 32px rgba(0, 0, 0, 0.04),
+    inset -1px 0 0 rgba(255, 255, 255, 0.4) !important;
 }
 
-::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 4px;
+.ant-layout-header {
+  background: 
+    linear-gradient(180deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.2) 100%) !important;
+  backdrop-filter: blur(40px) saturate(1.6) brightness(1.1) !important;
+  -webkit-backdrop-filter: blur(40px) saturate(1.6) brightness(1.1) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3) !important;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.04),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.4) !important;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #555;
+.ant-layout-content {
+  background: transparent !important;
 }
 
-/* Ant Design 表格响应式优化 */
+.ant-menu {
+  background: transparent !important;
+  border: none !important;
+}
+
+.ant-menu-item {
+  color: rgba(0, 0, 0, 0.7) !important;
+  border-radius: 14px !important;
+  margin: 6px 12px !important;
+}
+
+.ant-menu-item:hover,
+.ant-menu-item-selected {
+  background: rgba(255, 255, 255, 0.3) !important;
+  color: rgba(0, 0, 0, 0.9) !important;
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.04) !important,
+    inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+}
+
+.ant-menu-item-icon {
+  color: inherit !important;
+}
+
+/* Ant Design 表格样式覆盖 - 明亮风格 */
+.ant-table-wrapper {
+  background: transparent !important;
+}
+
+.ant-table {
+  background: transparent !important;
+  color: rgba(0, 0, 0, 0.8) !important;
+}
+
+.ant-table-thead > tr > th {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.25) !important;
+  color: rgba(0, 0, 0, 0.8) !important;
+}
+
+.ant-table-tbody > tr > td {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
+  color: rgba(0, 0, 0, 0.75) !important;
+}
+
+.ant-table-tbody > tr:hover > td {
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Ant Design 卡片样式 - 更透明 */
+.ant-card {
+  background: rgba(255, 255, 255, 0.18) !important;
+  backdrop-filter: blur(25px) !important;
+  -webkit-backdrop-filter: blur(25px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  border-radius: 20px !important;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.04) !important,
+    inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+}
+
+.ant-card-head {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.ant-card-head-title {
+  color: rgba(0, 0, 0, 0.85) !important;
+  font-weight: 600 !important;
+}
+
+.ant-card-body {
+  color: rgba(0, 0, 0, 0.75) !important;
+}
+
+/* Ant Design 统计数字样式 - 深色文字 */
+.ant-statistic-title {
+  color: rgba(0, 0, 0, 0.65) !important;
+}
+
+.ant-statistic-content {
+  color: rgba(0, 0, 0, 0.85) !important;
+}
+
+/* Ant Design 按钮样式 - 透明风格 */
+.ant-btn-primary {
+  background: rgba(255, 255, 255, 0.35) !important;
+  border: 1px solid rgba(255, 255, 255, 0.5) !important;
+  color: rgba(0, 0, 0, 0.85) !important;
+  backdrop-filter: blur(15px) !important;
+  -webkit-backdrop-filter: blur(15px) !important;
+  border-radius: 14px !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+}
+
+.ant-btn-primary:hover {
+  background: rgba(255, 255, 255, 0.45) !important;
+  color: rgba(0, 0, 0, 0.9) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.06) !important,
+    inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
+}
+
+/* Ant Design 输入框样式 - 透明风格 */
+.ant-input {
+  background: rgba(255, 255, 255, 0.25) !important;
+  border: 1px solid rgba(255, 255, 255, 0.35) !important;
+  border-radius: 14px !important;
+  color: rgba(0, 0, 0, 0.8) !important;
+  backdrop-filter: blur(15px) !important;
+  -webkit-backdrop-filter: blur(15px) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+}
+
+.ant-input::placeholder {
+  color: rgba(0, 0, 0, 0.5) !important;
+}
+
+.ant-input:focus {
+  background: rgba(255, 255, 255, 0.3) !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
+  box-shadow: 
+    0 0 0 2px rgba(255, 255, 255, 0.2) !important,
+    inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
+}
+
+/* Ant Design 下拉菜单 - 透明风格 */
+.ant-dropdown {
+  backdrop-filter: blur(25px) !important;
+  -webkit-backdrop-filter: blur(25px) !important;
+}
+
+.ant-dropdown-menu {
+  background: rgba(255, 255, 255, 0.25) !important;
+  backdrop-filter: blur(25px) !important;
+  -webkit-backdrop-filter: blur(25px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  border-radius: 16px !important;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.06) !important,
+    inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+}
+
+.ant-dropdown-menu-item {
+  color: rgba(0, 0, 0, 0.8) !important;
+}
+
+.ant-dropdown-menu-item:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  color: rgba(0, 0, 0, 0.9) !important;
+}
+
+/* Ant Design Tabs 样式 */
+.ant-tabs-tab {
+  color: rgba(0, 0, 0, 0.6) !important;
+}
+
+.ant-tabs-tab-active {
+  color: rgba(0, 0, 0, 0.9) !important;
+}
+
+.ant-tabs-ink-bar {
+  background: rgba(0, 0, 0, 0.8) !important;
+}
+
+/* Ant Design Spin 加载样式 */
+.ant-spin-dot-item {
+  background-color: rgba(0, 0, 0, 0.6) !important;
+}
+
+/* 响应式优化 */
 @media (max-width: 768px) {
   .ant-table {
     font-size: 12px;
