@@ -2,17 +2,17 @@
 
 一个轻量级的 AI API Token 使用监控平台，支持监控 OpenAI、Anthropic、Azure 等多个平台的 Token 消耗情况。
 
-## ✨ 功能特性
+## 功能特性
 
-- 🔑 **多平台支持** - 支持 OpenAI、Anthropic、Azure、Gemini 等主流 AI 平台
-- 📊 **实时监控** - 实时记录和统计 Token 使用量
-- 💰 **成本计算** - 自动计算每次调用的预估费用
-- 📈 **数据分析** - 提供详细的使用趋势和分布分析
-- 🔔 **配额预警** - 达到阈值时自动提醒
-- 🔒 **安全加密** - API Key 加密存储
-- 🎯 **代理模式** - 支持作为 API 代理自动记录使用量
+- **多平台支持** - 支持 OpenAI、Anthropic、Azure、Gemini 等主流 AI 平台
+- **实时监控** - 实时记录和统计 Token 使用量
+- **成本计算** - 自动计算每次调用的预估费用
+- **数据分析** - 提供详细的使用趋势和分布分析
+- **配额预警** - 达到阈值时自动提醒
+- **安全加密** - API Key 加密存储
+- **代理模式** - 支持作为 API 代理自动记录使用量
 
-## 📦 技术栈
+## 技术栈
 
 ### 后端
 - Node.js + Express + TypeScript
@@ -27,7 +27,7 @@
 - React Query
 - Zustand 状态管理
 
-## 🚀 快速开始
+## 快速开始
 
 ### 方式一：Docker 部署（推荐）
 
@@ -91,7 +91,7 @@ npm run dev
 
 前端应用运行在 `http://localhost:5173`
 
-## 📝 环境变量配置
+## 环境变量配置
 
 ### 后端 (.env)
 
@@ -120,7 +120,7 @@ CORS_ORIGIN="http://localhost:5173"
 VITE_API_BASE_URL=http://localhost:3001/api
 ```
 
-## 🔧 使用方法
+## 使用方法
 
 ### 1. 添加平台
 
@@ -188,7 +188,7 @@ await fetch('http://localhost:3001/api/usage/report', {
 - **使用记录** - 查看详细的每次调用记录
 - **数据分析** - 查看趋势图表和分布分析
 
-## 📊 API 文档
+## API 文档
 
 ### Platform APIs
 
@@ -214,7 +214,7 @@ POST   /api/usage/report       # 手动上报使用量
 POST   /api/proxy/:platformId/chat    # OpenAI 兼容的聊天代理
 ```
 
-## 🛠️ 开发命令
+## 开发命令
 
 ### 后端
 
@@ -234,7 +234,7 @@ npm run build        # 构建生产版本
 npm run preview      # 预览生产构建
 ```
 
-## 🗄️ 数据库结构
+## 数据库结构
 
 主要表结构：
 
@@ -244,7 +244,7 @@ npm run preview      # 预览生产构建
 
 详细 Schema 见 `backend/prisma/schema.prisma`
 
-## 🔒 安全注意事项
+## 安全注意事项
 
 1. **API Key 加密**：所有 API Key 使用 AES-256-CBC 加密存储
 2. **环境变量**：敏感信息通过环境变量配置，不要提交到版本控制
@@ -255,14 +255,14 @@ npm run preview      # 预览生产构建
    node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
    ```
 
-## 📈 性能优化建议
+## 性能优化建议
 
 1. 为 `usage_logs` 表添加适当的索引
 2. 定期清理或归档历史数据
 3. 使用 Redis 缓存热点数据
 4. 考虑实现数据分页和懒加载
 
-## 🔄 版本更新
+## 版本更新
 
 ```bash
 # 更新数据库
@@ -273,21 +273,21 @@ npx prisma migrate deploy
 docker-compose restart backend
 ```
 
-## 🤝 贡献指南
+## 贡献指南
 
 欢迎提交 Issue 和 Pull Request！
 
-## 📄 开源协议
+## 开源协议
 
 MIT License
 
-## 📮 联系方式
+## 联系方式
 
 如有问题或建议，请提交 Issue 或联系维护者。
 
 ---
 
-## 🎯 路线图
+## 路线图
 
 - [ ] 用户认证系统
 - [ ] 多用户/团队支持
