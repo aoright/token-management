@@ -11,7 +11,7 @@ interface PlatformState {
   removePlatform: (id: string) => Promise<void>;
 }
 
-const usePlatformStore = create<PlatformState>((set, get) => ({
+const usePlatformStore = create<PlatformState>((set) => ({
   platforms: [],
   loading: false,
   error: null,
@@ -21,7 +21,7 @@ const usePlatformStore = create<PlatformState>((set, get) => ({
     try {
       const platforms = await platformService.getAll();
       set({ platforms, loading: false });
-    } catch (error) {
+    } catch {
       set({ error: 'Failed to fetch platforms', loading: false });
     }
   },
@@ -32,7 +32,7 @@ const usePlatformStore = create<PlatformState>((set, get) => ({
       set(state => ({
         platforms: [...state.platforms, newPlatform]
       }));
-    } catch (error) {
+    } catch {
       set({ error: 'Failed to add platform' });
     }
   },
@@ -43,7 +43,7 @@ const usePlatformStore = create<PlatformState>((set, get) => ({
       set(state => ({
         platforms: state.platforms.map(p => p.id === id ? updatedPlatform : p)
       }));
-    } catch (error) {
+    } catch {
       set({ error: 'Failed to update platform' });
     }
   },
@@ -54,7 +54,7 @@ const usePlatformStore = create<PlatformState>((set, get) => ({
       set(state => ({
         platforms: state.platforms.filter(p => p.id !== id)
       }));
-    } catch (error) {
+    } catch {
       set({ error: 'Failed to remove platform' });
     }
   },

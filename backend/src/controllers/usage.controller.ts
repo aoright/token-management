@@ -2,8 +2,13 @@ import { Request, Response } from 'express';
 import { UsageService } from '../services/usage.service';
 
 export class UsageController {
-  static async getLogs(req: Request, res: Response) {
+  static async getLogs(req: Request, res: Response): Promise<void> {
     try {
+      if (!req.user) {
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+      }
+
       const { platformId, startDate, endDate, model, page, limit } = req.query;
       
       const result = await UsageService.findLogs(req.user.id, {
@@ -22,8 +27,13 @@ export class UsageController {
     }
   }
 
-  static async getStats(req: Request, res: Response) {
+  static async getStats(req: Request, res: Response): Promise<void> {
     try {
+      if (!req.user) {
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+      }
+
       const { platformId } = req.query;
       const stats = await UsageService.getStats(req.user.id, platformId as string);
       res.json(stats);

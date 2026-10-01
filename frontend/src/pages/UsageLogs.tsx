@@ -33,20 +33,20 @@ const UsageLogs: React.FC = () => {
   // 获取平台列表
   const fetchPlatforms = async () => {
     try {
-      const platforms = await platformService.getAll();
-      setPlatforms(platforms || []);
+      const platformsList = await platformService.getAll();
+      setPlatforms(platformsList || []);
     } catch (error) {
       console.error('获取平台列表失败:', error);
     }
   };
 
   // 获取使用记录
-  const fetchLogs = async (params: any = {}) => {
+  const fetchLogs = async (params: any = {}, page = pagination.current, limit = pagination.pageSize) => {
     setLoading(true);
     try {
       const response = await usageService.getLogs({
-        page: pagination.current,
-        limit: pagination.pageSize,
+        page,
+        limit,
         ...params,
       });
       
@@ -73,6 +73,7 @@ const UsageLogs: React.FC = () => {
   useEffect(() => {
     fetchPlatforms();
     fetchLogs();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const logColumns = [
@@ -133,7 +134,7 @@ const UsageLogs: React.FC = () => {
       params.model = values.model;
     }
     
-    fetchLogs(params);
+    fetchLogs(params, pagination.current, pagination.pageSize);
   };
 
   const handleTableChange = (paginationInfo: any) => {
@@ -159,7 +160,7 @@ const UsageLogs: React.FC = () => {
       params.model = formValues.model;
     }
     
-    fetchLogs(params);
+    fetchLogs(params, paginationInfo.current, paginationInfo.pageSize);
   };
 
   return (

@@ -2,8 +2,12 @@ import { Request, Response } from 'express';
 import { PlatformService } from '../services/platform.service';
 
 export class PlatformController {
-  static async getAll(req: Request, res: Response) {
+  static async getAll(req: Request, res: Response): Promise<void> {
     try {
+      if (!req.user) {
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+      }
       const platforms = await PlatformService.findAll(req.user.id);
       res.json(platforms);
     } catch (error) {
@@ -12,11 +16,16 @@ export class PlatformController {
     }
   }
 
-  static async getById(req: Request, res: Response) {
+  static async getById(req: Request, res: Response): Promise<void> {
     try {
+      if (!req.user) {
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+      }
       const platform = await PlatformService.findOne(req.params.id, req.user.id);
       if (!platform) {
-        return res.status(404).json({ error: 'Platform not found' });
+        res.status(404).json({ error: 'Platform not found' });
+        return;
       }
       res.json(platform);
     } catch (error) {
@@ -25,8 +34,12 @@ export class PlatformController {
     }
   }
 
-  static async create(req: Request, res: Response) {
+  static async create(req: Request, res: Response): Promise<void> {
     try {
+      if (!req.user) {
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+      }
       const platform = await PlatformService.create({
         userId: req.user.id,
         ...req.body,
@@ -38,8 +51,12 @@ export class PlatformController {
     }
   }
 
-  static async update(req: Request, res: Response) {
+  static async update(req: Request, res: Response): Promise<void> {
     try {
+      if (!req.user) {
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+      }
       const platform = await PlatformService.update(
         req.params.id,
         req.user.id,
@@ -52,8 +69,12 @@ export class PlatformController {
     }
   }
 
-  static async delete(req: Request, res: Response) {
+  static async delete(req: Request, res: Response): Promise<void> {
     try {
+      if (!req.user) {
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+      }
       await PlatformService.delete(req.params.id, req.user.id);
       res.status(204).send();
     } catch (error) {

@@ -46,8 +46,12 @@ app.post('/api/auth/logout', AuthController.logout);
 app.get('/api/auth/profile', authMiddleware, AuthController.getProfile);
 
 // Platform routes
-app.get('/api/platforms', authMiddleware, async (req: any, res) => {
+app.get('/api/platforms', authMiddleware, async (req: express.Request, res: express.Response) => {
   try {
+    if (!req.user) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
     const platforms = await PlatformService.findAll(req.user.id);
     res.json(platforms);
   } catch (error) {
@@ -56,8 +60,12 @@ app.get('/api/platforms', authMiddleware, async (req: any, res) => {
   }
 });
 
-app.post('/api/platforms', authMiddleware, async (req: any, res) => {
+app.post('/api/platforms', authMiddleware, async (req: express.Request, res: express.Response) => {
   try {
+    if (!req.user) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
     const platform = await PlatformService.create({
       userId: req.user.id,
       ...req.body,
@@ -69,11 +77,16 @@ app.post('/api/platforms', authMiddleware, async (req: any, res) => {
   }
 });
 
-app.get('/api/platforms/:id', authMiddleware, async (req: any, res) => {
+app.get('/api/platforms/:id', authMiddleware, async (req: express.Request, res: express.Response) => {
   try {
+    if (!req.user) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
     const platform = await PlatformService.findOne(req.params.id, req.user.id);
     if (!platform) {
-      return res.status(404).json({ error: 'Platform not found' });
+      res.status(404).json({ error: 'Platform not found' });
+      return;
     }
     res.json(platform);
   } catch (error) {
@@ -82,8 +95,12 @@ app.get('/api/platforms/:id', authMiddleware, async (req: any, res) => {
   }
 });
 
-app.put('/api/platforms/:id', authMiddleware, async (req: any, res) => {
+app.put('/api/platforms/:id', authMiddleware, async (req: express.Request, res: express.Response) => {
   try {
+    if (!req.user) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
     const platform = await PlatformService.update(
       req.params.id,
       req.user.id,
@@ -96,8 +113,12 @@ app.put('/api/platforms/:id', authMiddleware, async (req: any, res) => {
   }
 });
 
-app.delete('/api/platforms/:id', authMiddleware, async (req: any, res) => {
+app.delete('/api/platforms/:id', authMiddleware, async (req: express.Request, res: express.Response) => {
   try {
+    if (!req.user) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
     await PlatformService.delete(req.params.id, req.user.id);
     res.status(204).send();
   } catch (error) {
@@ -107,17 +128,21 @@ app.delete('/api/platforms/:id', authMiddleware, async (req: any, res) => {
 });
 
 // Usage routes
-app.get('/api/usage/logs', authMiddleware, async (req: any, res) => {
+app.get('/api/usage/logs', authMiddleware, async (req: express.Request, res: express.Response) => {
   try {
+    if (!req.user) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
     const { platformId, startDate, endDate, model, page, limit } = req.query;
     
     const result = await UsageService.findLogs(req.user.id, {
-      platformId,
-      startDate: startDate ? new Date(startDate) : undefined,
-      endDate: endDate ? new Date(endDate) : undefined,
-      model,
-      page: page ? parseInt(page) : undefined,
-      limit: limit ? parseInt(limit) : undefined,
+      platformId: platformId as string,
+      startDate: startDate ? new Date(startDate as string) : undefined,
+      endDate: endDate ? new Date(endDate as string) : undefined,
+      model: model as string,
+      page: page ? parseInt(page as string) : undefined,
+      limit: limit ? parseInt(limit as string) : undefined,
     });
     
     res.json(result);
@@ -127,10 +152,14 @@ app.get('/api/usage/logs', authMiddleware, async (req: any, res) => {
   }
 });
 
-app.get('/api/usage/stats', authMiddleware, async (req: any, res) => {
+app.get('/api/usage/stats', authMiddleware, async (req: express.Request, res: express.Response) => {
   try {
+    if (!req.user) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
     const { platformId } = req.query;
-    const stats = await UsageService.getStats(req.user.id, platformId);
+    const stats = await UsageService.getStats(req.user.id, platformId as string);
     res.json(stats);
   } catch (error) {
     console.error(error);
@@ -143,13 +172,12 @@ app.post('/api/proxy/:platformId/chat', authMiddleware, ProxyController.chat);
 app.post('/api/usage/report', authMiddleware, ProxyController.reportUsage);
 
 // Analytics routes
-app.get('/api/analytics/daily', authMiddleware, async (req: any, res) => {
+app.get('/api/analytics/daily', authMiddleware, async (req: express.Request, res: express.Response) => {
   try {
-    const { platformId, days = 30 } = req.query;
+    const { days = '30' } = req.query;
     const startDate = new Date();
-    startDate.setDate(startDate.getDate() - parseInt(days));
+    startDate.setDate(startDate.getDate() - parseInt(days as string));
     
-    // 这里可以添加更复杂的分析逻辑
     res.json({ message: 'Daily analytics endpoint' });
   } catch (error) {
     console.error(error);
@@ -164,7 +192,11 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 });
 
 // Start server
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
-  console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
-});
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
+    console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
+  });
+}
+
+export default app;

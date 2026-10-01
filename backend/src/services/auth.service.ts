@@ -1,12 +1,14 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import db from '../config/database';
+import prisma from '../config/database';
 import { User } from '../types';
 
 export class AuthService {
   static async register(email: string, password: string, name?: string): Promise<{ user: User; token: string }> {
     // 检查用户是否已存在
-    const existingUser = await db.user.findUnique({ email });
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
+    });
     if (existingUser) {
       throw new Error('用户已存在');
     }
@@ -15,26 +17,33 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(password, 12);
 
     // 创建用户
-    const user = await db.user.create({
-      email,
-      password: hashedPassword,
-      name: name || email.split('@')[0],
+    const user = await prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        name: name || email.split('@')[0],
+      },
     });
 
     // 生成JWT token
     const token = this.generateToken(user.id);
 
     // 返回用户信息（不包含密码）
-    const { password: _, ...userWithoutPassword } = user;
+    const { password: _, name: userName, ...rest } = user;
     return {
-      user: userWithoutPassword as User,
+      user: {
+        ...rest,
+        name: userName ?? undefined,
+      },
       token,
     };
   }
 
   static async login(email: string, password: string): Promise<{ user: User; token: string }> {
     // 查找用户
-    const user = await db.user.findUnique({ email });
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
     if (!user) {
       throw new Error('用户不存在');
     }
@@ -49,21 +58,29 @@ export class AuthService {
     const token = this.generateToken(user.id);
 
     // 返回用户信息（不包含密码）
-    const { password: _, ...userWithoutPassword } = user;
+    const { password: _, name: userName, ...rest } = user;
     return {
-      user: userWithoutPassword as User,
+      user: {
+        ...rest,
+        name: userName ?? undefined,
+      },
       token,
     };
   }
 
   static async getUserById(id: string): Promise<User | null> {
-    const user = await db.user.findUnique({ id });
+    const user = await prisma.user.findUnique({
+      where: { id },
+    });
     if (!user) {
       return null;
     }
 
-    const { password: _, ...userWithoutPassword } = user;
-    return userWithoutPassword as User;
+    const { password: _, name: userName, ...rest } = user;
+    return {
+      ...rest,
+      name: userName ?? undefined,
+    };
   }
 
   static generateToken(userId: string): string {

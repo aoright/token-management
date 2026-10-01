@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Row, Col, Card, Statistic, Table, Typography, Spin, message } from 'antd';
+import { Row, Col, Card, Table, Typography, Spin, message } from 'antd';
 import { 
-  RiseOutlined, 
-  FallOutlined, 
   ApiOutlined, 
   FileTextOutlined,
   DollarOutlined,
@@ -49,7 +47,7 @@ const Dashboard: React.FC = () => {
               cost: platformStats.total.estimatedCost,
               trend: '+0%', // 可以后续计算趋势
             };
-          } catch (error) {
+          } catch {
             return {
               key: platform.id,
               platform: platform.name,
@@ -63,8 +61,8 @@ const Dashboard: React.FC = () => {
       );
       
       setPlatformData(platformUsageData);
-    } catch (error) {
-      console.error('加载数据失败:', error);
+    } catch (err) {
+      console.error('加载数据失败:', err);
       message.error('加载数据失败，请稍后重试');
       
       // 如果是新用户没有数据，显示空状态

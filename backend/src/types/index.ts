@@ -6,8 +6,9 @@ export interface Platform {
   apiKeyEncrypted: string;
   baseUrl?: string;
   pricingConfig: {
-    input: number;
-    output: number;
+    input?: number;
+    output?: number;
+    [key: string]: any;
   };
   monthlyQuota?: number;
   alertThreshold: number;
@@ -32,7 +33,7 @@ export interface UsageLog {
 export interface User {
   id: string;
   email: string;
-  password: string;
+  password?: string;
   name?: string;
   createdAt: Date;
   updatedAt: Date;

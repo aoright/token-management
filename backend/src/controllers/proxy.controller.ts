@@ -4,7 +4,7 @@ import { UsageService } from '../services/usage.service';
 import prisma from '../config/database';
 
 export class ProxyController {
-  static async chat(req: Request, res: Response) {
+  static async chat(req: Request, res: Response): Promise<void> {
     try {
       const { platformId } = req.params;
       const platform = await prisma.platform.findUnique({
@@ -12,7 +12,8 @@ export class ProxyController {
       });
 
       if (!platform) {
-        return res.status(404).json({ error: 'Platform not found' });
+        res.status(404).json({ error: 'Platform not found' });
+        return;
       }
 
       // 解密 API Key（实际项目中需要实现解密逻辑）
@@ -52,13 +53,12 @@ export class ProxyController {
     }
   }
 
-  static async reportUsage(req: Request, res: Response) {
+  static async reportUsage(req: Request, res: Response): Promise<void> {
     try {
       const usageData = req.body;
       
       const usageLog = await UsageService.create({
         ...usageData,
-        createdAt: new Date()
       });
 
       res.status(201).json(usageLog);

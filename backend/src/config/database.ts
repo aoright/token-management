@@ -1,4 +1,5 @@
-// 使用CloudBase数据库连接
-import db from './database-cloudbase';
+import { PrismaClient } from '@prisma/client';
 
-export default db;
+const prisma = new PrismaClient();
+
+export default prisma;

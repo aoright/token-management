@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Row, Col, Card, Typography, Spin, message } from 'antd';
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { usageService } from '../services/usage.service';
-import { platformService } from '../services/platform.service';
 import dayjs from 'dayjs';
 
 const { Title } = Typography;
@@ -27,8 +26,6 @@ const Analytics: React.FC = () => {
         limit: 1000,
       });
 
-      const platforms = await platformService.getAll();
-      
       // 处理Token使用趋势数据
       const dailyUsage: { [key: string]: number } = {};
       const dailyCost: { [key: string]: number } = {};
@@ -155,7 +152,7 @@ const Analytics: React.FC = () => {
                     fill="#8884d8"
                     dataKey="value"
                   >
-                    {platformDistributionData.map((entry, index) => (
+                    {platformDistributionData.map((_entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>

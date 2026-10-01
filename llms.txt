@@ -1,0 +1,50 @@
+# Token Monitor Platform
+
+> Lightweight AI API Token usage monitoring, cost estimation, and proxy platform.
+
+Token Monitor Platform is an open-source solution designed for tracking, managing, and analyzing token consumption across multi-provider LLM deployments. It offers proxy routing, user authentication, and real-time token and cost analytics.
+
+## Supported Providers
+
+- **OpenAI**: Compatible with `gpt-4`, `gpt-4o`, `gpt-3.5-turbo`, embeddings, and fine-tuned models. Default API endpoint: `https://api.openai.com/v1`
+- **Anthropic**: Support for Claude models (`claude-3-5-sonnet`, `claude-3-opus`, `claude-3-haiku`). Default API endpoint: `https://api.anthropic.com`
+- **Google Gemini**: Support for Gemini models (`gemini-1.5-pro`, `gemini-1.5-flash`). Default API endpoint: `https://generativelanguage.googleapis.com`
+- **Azure OpenAI & Custom Providers**: Supports custom base URLs and custom pricing configurations for enterprise proxying.
+
+## Key Features
+
+- **Real-Time Token Tracking**: Monitors input/prompt tokens, output/completion tokens, and request counts per provider and model.
+- **Cost Calculation**: Automated cost estimation based on configurable per-model input and output token pricing rules.
+- **Proxy Adapter**: OpenAI-compatible chat completion proxy router at `/api/proxy/:platformId/chat` for seamless request tracking and header-based key decryption.
+- **Quota & Usage Alerts**: Alerts when usage exceeds defined thresholds or monthly quotas.
+- **Security**: AES-256-CBC key encryption for stored API keys, JWT authentication for platform access.
+
+## Core API Endpoints
+
+### Authentication
+- `POST /api/auth/register`: Register a new user account.
+- `POST /api/auth/login`: Authenticate user and retrieve JWT access token.
+- `POST /api/auth/logout`: End active session.
+- `GET /api/auth/profile`: Retrieve user profile information.
+
+### Platform Management
+- `GET /api/platforms`: List configured provider platforms.
+- `POST /api/platforms`: Configure a new platform (OpenAI, Anthropic, Gemini, Azure, etc.).
+- `GET /api/platforms/:id`: Fetch platform configuration details.
+- `PUT /api/platforms/:id`: Update platform API key, base URL, pricing, or quotas.
+- `DELETE /api/platforms/:id`: Remove platform configuration.
+
+### Usage & Analytics
+- `GET /api/usage/logs`: Query usage logs with pagination and filters (date range, platform, model).
+- `GET /api/usage/stats`: Retrieve aggregated token and cost statistics (today and all-time).
+- `POST /api/usage/report`: Report token usage manually from external services or SDKs.
+- `GET /api/analytics/daily`: Aggregated daily usage trends for reporting and charting.
+
+### API Proxy
+- `POST /api/proxy/:platformId/chat`: OpenAI-compatible proxy endpoint. Forwards request payload to configured platform target, logs prompt and completion tokens automatically, and returns response.
+
+## Architecture & Deployment
+
+- **Backend**: Node.js, Express, TypeScript, Prisma ORM, PostgreSQL.
+- **Frontend**: React 18, TypeScript, Vite, Ant Design, Recharts, Zustand.
+- **Containerization**: One-command deployment via Docker Compose (`docker-compose up -d`).

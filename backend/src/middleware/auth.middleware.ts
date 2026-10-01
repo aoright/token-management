@@ -20,10 +20,11 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
     const authHeader = req.headers.authorization;
     
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         message: '未提供认证token',
       });
+      return;
     }
 
     const token = authHeader.substring(7); // 移除 "Bearer " 前缀
@@ -35,10 +36,11 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
     const user = await AuthService.getUserById(userId);
     
     if (!user) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         message: '用户不存在',
       });
+      return;
     }
 
     // 将用户信息添加到请求对象
@@ -47,15 +49,16 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
   } catch (error: any) {
     console.error('认证中间件错误:', error);
     
-    return res.status(401).json({
+    res.status(401).json({
       success: false,
       message: error.message || '认证失败',
     });
+    return;
   }
 };
 
 // 可选的认证中间件（用于某些不需要强制登录的接口）
-export const optionalAuthMiddleware = async (req: Request, res: Response, next: NextFunction) => {
+export const optionalAuthMiddleware = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const authHeader = req.headers.authorization;
     

@@ -10,6 +10,15 @@ interface FindLogsOptions {
   limit?: number;
 }
 
+function mapUsageLog(log: any): UsageLog {
+  return {
+    ...log,
+    estimatedCost: log.estimatedCost ? Number(log.estimatedCost) : 0,
+    requestId: log.requestId ?? undefined,
+    metadata: log.metadata ?? undefined,
+  };
+}
+
 export class UsageService {
   static async findLogs(userId: string, options: FindLogsOptions) {
     const { platformId, startDate, endDate, model, page = 1, limit = 20 } = options;
@@ -45,7 +54,7 @@ export class UsageService {
     ]);
 
     return {
-      logs,
+      logs: logs.map(mapUsageLog),
       pagination: {
         page,
         limit,
@@ -112,9 +121,28 @@ export class UsageService {
     };
   }
 
-  static async create(data: Partial<UsageLog>): Promise<UsageLog> {
-    return prisma.usageLog.create({
-      data
+  static async create(data: {
+    platformId: string;
+    model: string;
+    promptTokens: number;
+    completionTokens: number;
+    totalTokens: number;
+    estimatedCost: number;
+    requestId?: string;
+    metadata?: any;
+  }): Promise<UsageLog> {
+    const created = await prisma.usageLog.create({
+      data: {
+        platformId: data.platformId,
+        model: data.model,
+        promptTokens: data.promptTokens,
+        completionTokens: data.completionTokens,
+        totalTokens: data.totalTokens,
+        estimatedCost: data.estimatedCost,
+        requestId: data.requestId,
+        metadata: data.metadata,
+      }
     });
+    return mapUsageLog(created);
   }
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios, { AxiosRequestConfig } from 'axios';
 
 interface UseApiResult<T> {
@@ -13,7 +13,7 @@ export const useApi = <T>(url: string, options?: AxiosRequestConfig): UseApiResu
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -27,11 +27,11 @@ export const useApi = <T>(url: string, options?: AxiosRequestConfig): UseApiResu
     } finally {
       setLoading(false);
     }
-  };
+  }, [url, options]);
 
   useEffect(() => {
     fetchData();
-  }, [url]);
+  }, [fetchData]);
 
   return {
     data,

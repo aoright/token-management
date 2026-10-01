@@ -52,7 +52,7 @@ export const useAuthStore = create<AuthState>()(
           }
           set({ isLoading: false });
           return false;
-        } catch (error) {
+        } catch {
           set({ isLoading: false });
           return false;
         }
@@ -75,7 +75,7 @@ export const useAuthStore = create<AuthState>()(
           }
           set({ isLoading: false });
           return false;
-        } catch (error) {
+        } catch {
           set({ isLoading: false });
           return false;
         }
@@ -109,7 +109,7 @@ export const useAuthStore = create<AuthState>()(
           } else {
             get().clearAuth();
           }
-        } catch (error) {
+        } catch {
           get().clearAuth();
         }
       },

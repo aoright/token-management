@@ -1,31 +1,30 @@
-# 使用官方 Node.js 运行时作为基础镜像
-FROM node:18-alpine
+# 构建阶段
+FROM node:20-alpine as build
 
-# 设置工作目录
 WORKDIR /app
 
-# 复制 package.json 和 package-lock.json（如果存在）
 COPY package*.json ./
+COPY ../prisma /prisma
 
-# 安装依赖
-RUN npm ci --only=production
+RUN npm ci
 
-# 复制应用代码
 COPY . .
 
-# 构建应用
+RUN npx prisma generate --schema=/prisma/schema.prisma
 RUN npm run build
 
-# 暴露端口
+# 运行阶段
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci --only=production
+
+COPY --from=build /app/dist ./dist
+COPY --from=build /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=build /prisma /prisma
+
 EXPOSE 3001
 
-# 创建非 root 用户
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nextjs -u 1001
-
-# 更改文件所有权
-RUN chown -R nextjs:nodejs /app
-USER nextjs
-
-# 启动应用
-CMD ["npm", "start"]
+CMD ["node", "dist/app.js"]
